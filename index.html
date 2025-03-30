@@ -6,17 +6,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
-      font-family: sans-serif;
-      background: #f0f8ff;
+      font-family: 'Arial', sans-serif;
+      background: #e0f7fa;
       margin: 0;
       padding: 1em;
       text-align: center;
+      transition: background-color 0.5s ease;
     }
 
     h1 {
-      color: #0077aa;
-      font-size: 1.8em;
+      color: #00acc1;
+      font-size: 2em;
       margin-bottom: 0.5em;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.4em 1em;
+      border-radius: 999px;
+      font-size: 1em;
+      color: #fff;
+      background-color: #4dd0e1;
+      margin-bottom: 1em;
+      animation: popIn 0.4s ease;
+    }
+
+    .badge img {
+      width: 24px;
+      height: 24px;
+      margin-right: 0.5em;
+    }
+
+    .badge.child {
+      background-color: #80deea;
     }
 
     input, button {
@@ -26,41 +50,105 @@
       width: 90%;
       max-width: 400px;
       box-sizing: border-box;
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    }
+
+    input {
+      background: #ffffff;
+      border: 1px solid #b2ebf2;
     }
 
     button {
-      background-color: #0077aa;
+      background-color: #4dd0e1;
       color: white;
-      border: none;
-      border-radius: 6px;
       cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.1s ease;
     }
 
     button:hover {
-      background-color: #005f88;
+      background-color: #26c6da;
+      transform: scale(1.02);
     }
 
     .log {
-      margin-top: 1em;
-      text-align: left;
-      max-width: 500px;
+      margin-top: 1.5em;
+      text-align: center;
+      max-width: 600px;
       margin-left: auto;
       margin-right: auto;
-      background: #ffffff;
-      padding: 1em;
-      border-radius: 8px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-      font-size: 0.95em;
     }
 
-    ul {
-      padding-left: 1em;
+    .station-card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 0.8em 1em;
+      margin: 0.5em auto;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 300px;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      animation: fadeInUp 0.4s ease;
+    }
+
+    .station-card img {
+      width: 32px;
+      height: 32px;
+      margin-right: 0.5em;
+    }
+
+    .station-card span {
+      font-weight: bold;
+      color: #00acc1;
+    }
+
+    #result-message {
+      font-size: 1.2em;
+      color: #d32f2f;
+      margin-top: 1em;
+    }
+
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 2em;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      z-index: 999;
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .popup.show {
+      display: block;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.9); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
     @media (max-width: 480px) {
       h1 {
-        font-size: 1.5em;
+        font-size: 1.6em;
       }
+
       input, button {
         font-size: 1em;
       }
@@ -68,15 +156,27 @@
   </style>
 </head>
 <body>
-  <h1>東西線 駅名いいあいっこゲーム</h1>
-  <p><strong>プレイヤー: <span id="current-player">親</span></strong></p>
-  <input type="text" id="station-input" placeholder="駅名を入力">
+  <h1>
+    <img src="images/train_icon.png" alt="電車アイコン" style="height: 1.5em; vertical-align: middle; margin-right: 0.4em;">
+    駅名いいあいっこ 東西線
+  </h1>
+  <div id="player-badge" class="badge">
+    <img id="player-icon" src="images/parent_icon.png" alt="親アイコン">
+    <span id="player-text">親の番</span>
+  </div>
+
+  <input type="text" id="station-input" placeholder="駅名を入力してください">
   <button onclick="submitStation()">送信</button>
+  <button onclick="resetGame()" style="background-color: #ccc; color: #333; margin-top: 1em;">リセットする</button>
+
+  <div id="result-message"></div>
 
   <div class="log" id="log">
     <p>これまでに言った駅名：</p>
-    <ul id="station-list"></ul>
+    <div id="station-list"></div>
   </div>
+
+  <div id="popup" class="popup"></div>
 
   <script>
     const tozaiLineStations = [
@@ -88,12 +188,39 @@
     const usedStations = [];
     let isParentTurn = true;
 
+    function updateBadge() {
+      const badge = document.getElementById("player-badge");
+      const icon = document.getElementById("player-icon");
+      const text = document.getElementById("player-text");
+
+      if (isParentTurn) {
+        badge.classList.remove("child");
+        icon.src = "images/parent_icon.png";
+        icon.alt = "親アイコン";
+        text.textContent = "親の番";
+      } else {
+        badge.classList.add("child");
+        icon.src = "images/child_icon.png";
+        icon.alt = "子アイコン";
+        text.textContent = "子の番";
+      }
+    }
+
+    function showGameOver(winner) {
+      const popup = document.getElementById("popup");
+      popup.innerHTML = `<strong>${winner}の勝ち！</strong><br><button onclick=\"resetGame()\">もう一度あそぶ</button>`;
+      popup.classList.add("show");
+      document.body.style.backgroundColor = "#ffe0e0";
+    }
+
     function submitStation() {
       const input = document.getElementById("station-input");
       const station = input.value.trim();
       input.value = "";
 
       const player = isParentTurn ? "親" : "子";
+      const loser = player;
+      const winner = isParentTurn ? "子" : "親";
 
       if (!station) {
         alert("駅名を入力してください！");
@@ -101,24 +228,45 @@
       }
 
       if (!tozaiLineStations.includes(station)) {
-        alert(`『${station}』は東西線の駅じゃないよ！\n${player}の負け！`);
+        document.getElementById("result-message").textContent = `『${station}』は東西線の駅じゃないよ！ ${loser}の負け！`;
+        showGameOver(winner);
         return;
       }
 
       if (usedStations.includes(station)) {
-        alert(`『${station}』はもう言ったよ！\n${player}の負け！`);
+        document.getElementById("result-message").textContent = `『${station}』はもう言ったよ！ ${loser}の負け！`;
+        showGameOver(winner);
         return;
       }
 
       usedStations.push(station);
+      document.getElementById("result-message").textContent = "";
+
       const list = document.getElementById("station-list");
-      const li = document.createElement("li");
-      li.textContent = `${player}: ${station}`;
-      list.appendChild(li);
+      const card = document.createElement("div");
+      card.className = "station-card";
+      const iconPath = isParentTurn ? "images/parent_icon.png" : "images/child_icon.png";
+      const altText = isParentTurn ? "親アイコン" : "子アイコン";
+      card.innerHTML = `<img src="${iconPath}" alt="${altText}"><span>${player}</span>：${station}`;
+      list.appendChild(card);
 
       isParentTurn = !isParentTurn;
-      document.getElementById("current-player").textContent = isParentTurn ? "親" : "子";
+      updateBadge();
     }
+
+    function resetGame() {
+      usedStations.length = 0;
+      document.getElementById("station-list").innerHTML = "";
+      isParentTurn = true;
+      updateBadge();
+      document.getElementById("station-input").value = "";
+      document.getElementById("result-message").textContent = "";
+      document.getElementById("popup").classList.remove("show");
+      document.body.style.backgroundColor = "#e0f7fa";
+      alert("ゲームをリセットしました！");
+    }
+
+    updateBadge();
   </script>
 </body>
 </html>
