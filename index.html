@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>東西線 いいあいっこゲーム</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f8ff;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #0077aa;
+    }
+    input, button {
+      font-size: 1.2em;
+      padding: 0.5em;
+      margin: 0.5em;
+    }
+    .log {
+      margin-top: 1em;
+      text-align: left;
+      max-width: 500px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 1em;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>東西線 駅名いいあいっこゲーム</h1>
+  <p><strong>プレイヤー: <span id="current-player">親</span></strong></p>
+  <input type="text" id="station-input" placeholder="駅名を入力">
+  <button onclick="submitStation()">送信</button>
+
+  <div class="log" id="log">
+    <p>これまでに言った駅名：</p>
+    <ul id="station-list"></ul>
+  </div>
+
+  <script>
+    const tozaiLineStations = [
+      "中野", "落合", "高田馬場", "早稲田", "神楽坂", "飯田橋", "九段下", "竹橋", "大手町",
+      "日本橋", "茅場町", "門前仲町", "木場", "東陽町", "南砂町", "西葛西", "葛西", "浦安",
+      "南行徳", "行徳", "妙典", "原木中山", "西船橋"
+    ];
+
+    const usedStations = [];
+    let isParentTurn = true;
+
+    function submitStation() {
+      const input = document.getElementById("station-input");
+      const station = input.value.trim();
+      input.value = "";
+
+      const player = isParentTurn ? "親" : "子";
+
+      if (!station) {
+        alert("駅名を入力してください！");
+        return;
+      }
+
+      if (!tozaiLineStations.includes(station)) {
+        alert(`『${station}』は東西線の駅じゃないよ！\n${player}の負け！`);
+        return;
+      }
+
+      if (usedStations.includes(station)) {
+        alert(`『${station}』はもう言ったよ！\n${player}の負け！`);
+        return;
+      }
+
+      usedStations.push(station);
+      const list = document.getElementById("station-list");
+      const li = document.createElement("li");
+      li.textContent = `${player}: ${station}`;
+      list.appendChild(li);
+
+      isParentTurn = !isParentTurn;
+      document.getElementById("current-player").textContent = isParentTurn ? "親" : "子";
+    }
+  </script>
+</body>
+</html>
