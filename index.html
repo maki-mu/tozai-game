@@ -245,6 +245,10 @@
       <option value="all">両方</option>
     </select>
   </div>
+  <div id="game-result-message" style="text-align:center; font-size: 1.2em; font-weight: bold; color: #d84315; margin-bottom: 0.5em;"></div>
+<div id="loser-animation" style="text-align:center; display:none; margin-bottom: 1em;">
+  <img src="images/loser_icon.png" alt="くやしがるキャラ" style="width: 100px; height: auto;">
+</div>
   <div id="player-badge" class="badge">
     <img id="player-icon" src="images/parent_icon.png" alt="親アイコン">
     <span id="player-text">親の番</span>
@@ -319,9 +323,9 @@ let childHintCount = 0;
     }
 
     function showGameOver(winner) {
-      const popup = document.getElementById("popup");
-      popup.innerHTML = `<strong>${winner}の勝ち！</strong><br><button onclick=\"resetGame()\">もう一度あそぶ</button>`;
-      popup.classList.add("show");
+  document.getElementById("game-result-message").innerHTML = `<strong>${winner}の勝ち！</strong> <button onclick='resetGame()'>もう一度あそぶ</button>`;
+  document.getElementById("loser-animation").style.display = "block";
+  document.body.style.backgroundColor = "#ffe0e0";
       document.body.style.backgroundColor = "#ffe0e0";
     }
 
@@ -382,6 +386,8 @@ let childHintCount = 0;
     }
 
     function resetGame() {
+  document.getElementById("game-result-message").innerHTML = "";
+  document.getElementById("loser-animation").style.display = "none";
   usedStations = [];
   parentHintCount = 0;
   childHintCount = 0;
@@ -396,7 +402,11 @@ let childHintCount = 0;
       updateRemainingCount();
     }
 
-    function changeLine() {
+    function resetGameWithPopupClose() {
+  resetGame();
+}
+
+function changeLine() {
       selectedLine = document.getElementById("line-select").value;
       resetGame();
     }
