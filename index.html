@@ -5,126 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#4dd0e1">
   <title>駅名バトル</title>
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background: linear-gradient(to bottom, #e0f7fa, #ffffff);
-      margin: 0;
-      padding: 1em;
-      text-align: center;
-      transition: background-color 0.5s ease;
-    }
-    h1 {
-      color: #007c91;
-      font-size: 1.8em;
-      margin-bottom: 0.5em;
-    }
-    select {
-      font-size: 1em;
-      margin-bottom: 1em;
-      padding: 0.5em;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.4em 1em;
-      border-radius: 999px;
-      font-size: 1em;
-      color: #fff;
-      background-color: #4dd0e1;
-      margin-bottom: 1em;
-    }
-    .badge img {
-      width: 24px;
-      height: 24px;
-      margin-right: 0.5em;
-    }
-    .badge.child {
-      background-color: #80deea;
-    }
-    input, button {
-      font-size: 1.1em;
-      padding: 0.8em;
-      margin: 0.6em 0;
-      width: 90%;
-      max-width: 400px;
-      border-radius: 16px;
-      border: none;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    input {
-      background: #fff;
-      border: 1px solid #b2ebf2;
-    }
-    button {
-      background-color: #4dd0e1;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    button:hover {
-      background-color: #26c6da;
-      transform: scale(1.02);
-    }
-    .log {
-      margin-top: 1.5em;
-      text-align: center;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .station-card {
-      background: #ffffff;
-      border-radius: 16px;
-      padding: 1em;
-      margin: 0.6em auto;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      width: 90%;
-      max-width: 320px;
-      display: flex;
-      align-items: center;
-    }
-    .station-card img {
-      width: 36px;
-      height: 36px;
-      margin-right: 0.8em;
-    }
-    .station-card span {
-      font-weight: bold;
-      color: #007c91;
-    }
-    #result-message, #remaining-count, #hint-message, #station-list-toggle, #station-list-full {
-      font-size: 1em;
-      margin: 0.5em;
-      color: #007c91;
-    }
-    .popup {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 2em;
-      border-radius: 16px;
-      box-shadow: 0 0 12px rgba(0,0,0,0.2);
-      z-index: 999;
-      display: none;
-    }
-    .popup.show {
-      display: block;
-    }
-    @media (max-width: 480px) {
-      h1 {
-        font-size: 1.5em;
-      }
-      input, button {
-        font-size: 1em;
-      }
-    }
-  </style>
+  <!-- （CSS部分は省略） -->
 </head>
 <body>
   <h1>駅名バトル</h1>
@@ -152,19 +33,106 @@
   </div>
   <div id="popup" class="popup"></div>
   <script>
-    const tozaiLineStations = [...];
-    const oedoLineStations = [...];
+    const tozaiLineStations = ["中野", "落合", "高田馬場", "早稲田", "神楽坂", "飯田橋", "九段下", "竹橋", "大手町", "日本橋", "茅場町", "門前仲町", "木場", "東陽町", "南砂町", "西葛西", "葛西", "浦安", "南行徳", "行徳", "妙典", "原木中山", "西船橋"];
+    const oedoLineStations = ["都庁前", "新宿西口", "東新宿", "若松河田", "牛込柳町", "牛込神楽坂", "飯田橋", "春日", "本郷三丁目", "上野御徒町", "新御徒町", "蔵前", "両国", "森下", "清澄白河", "門前仲町", "月島", "勝どき", "築地市場", "汐留", "大門", "赤羽橋", "麻布十番", "六本木", "青山一丁目", "国立競技場", "代々木", "新宿", "都庁前"];
+
     let selectedLine = 'tozai';
     let usedStations = [];
     let isParentTurn = true;
     let hintCount = 0;
 
     function getCurrentStationList() {
-      ...
+      if (selectedLine === 'tozai') return tozaiLineStations;
+      if (selectedLine === 'oedo') return oedoLineStations;
+      return [...new Set([...tozaiLineStations, ...oedoLineStations])];
+    }
+
+    function updateBadge() {
+      const badge = document.getElementById("player-badge");
+      const icon = document.getElementById("player-icon");
+      const text = document.getElementById("player-text");
+      if (isParentTurn) {
+        badge.classList.remove("child");
+        icon.src = "images/parent_icon.png";
+        text.textContent = "親の番";
+      } else {
+        badge.classList.add("child");
+        icon.src = "images/child_icon.png";
+        text.textContent = "子の番";
+      }
+    }
+
+    function showGameOver(winner) {
+      const popup = document.getElementById("popup");
+      popup.innerHTML = `<strong>${winner}の勝ち！</strong><br><button onclick=\"resetGame()\">もう一度あそぶ</button>`;
+      popup.classList.add("show");
+      document.body.style.backgroundColor = "#ffe0e0";
+    }
+
+    function submitStation() {
+      const input = document.getElementById("station-input");
+      const station = input.value.trim();
+      input.value = "";
+      input.blur();
+      const stationList = getCurrentStationList();
+      const player = isParentTurn ? "親" : "子";
+      const loser = player;
+      const winner = isParentTurn ? "子" : "親";
+
+      if (!station) {
+        alert("駅名を入力してください！");
+        return;
+      }
+
+      if (!stationList.includes(station)) {
+        document.getElementById("result-message").textContent = `『${station}』はその路線の駅じゃないよ！ ${loser}の負け！`;
+        showGameOver(winner);
+        return;
+      }
+
+      if (usedStations.includes(station)) {
+        document.getElementById("result-message").textContent = `『${station}』はもう言ったよ！ ${loser}の負け！`;
+        showGameOver(winner);
+        return;
+      }
+
+      usedStations.push(station);
+      document.getElementById("result-message").textContent = "";
+      const list = document.getElementById("station-list");
+      const card = document.createElement("div");
+      card.className = "station-card";
+      const iconPath = isParentTurn ? "images/parent_icon.png" : "images/child_icon.png";
+      const altText = isParentTurn ? "親アイコン" : "子アイコン";
+      card.innerHTML = `<img src="${iconPath}" alt="${altText}"><span>${player}</span>：${station}`;
+      list.appendChild(card);
+      isParentTurn = !isParentTurn;
+      updateBadge();
+      updateRemainingCount();
     }
 
     function updateRemainingCount() {
-      ...
+      const total = getCurrentStationList().length;
+      const remaining = total - usedStations.length;
+      document.getElementById("remaining-count").textContent = `残りの駅数：${remaining}駅`;
+    }
+
+    function resetGame() {
+      usedStations = [];
+      hintCount = 0;
+      document.getElementById("station-list").innerHTML = "";
+      document.getElementById("station-input").value = "";
+      document.getElementById("hint-message").textContent = "";
+      document.getElementById("result-message").textContent = "";
+      document.getElementById("popup").classList.remove("show");
+      document.body.style.backgroundColor = "#e0f7fa";
+      isParentTurn = true;
+      updateBadge();
+      updateRemainingCount();
+    }
+
+    function changeLine() {
+      selectedLine = document.getElementById("line-select").value;
+      resetGame();
     }
 
     function showHint() {
@@ -188,19 +156,6 @@
       } else {
         container.style.display = "none";
       }
-    }
-
-    function updateBadge() { ... }
-    function showGameOver(winner) { ... }
-    function submitStation() { ... }
-    function resetGame() {
-      usedStations = [];
-      hintCount = 0;
-      ...
-    }
-    function changeLine() {
-      selectedLine = document.getElementById("line-select").value;
-      resetGame();
     }
 
     updateBadge();
