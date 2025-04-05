@@ -59,9 +59,19 @@
     }
 
     #popup {
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      position: fixed;
+
       font-family: 'Comic Sans MS', cursive;
       background-color: #fff8e1;
       border: 2px dashed #a1887f;
+      animation: popupBounce 0.6s ease;
+      transform: scale(1.1);
+      text-align: center;
+      font-size: 1.4em;
+      color: #4e342e;
     }
     @media (max-width: 480px) {
       h1 {
@@ -93,46 +103,191 @@
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
   }
-</style>
+  .card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 16px;
+    padding: 1em;
+    margin-bottom: 1em;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+  .section-title {
+    font-weight: bold;
+    color: #5d4037;
+    font-size: 1em;
+    margin-bottom: 0.4em;
+    display: block;
+  }
+  .station-card {
+    animation: fadeIn 0.4s ease;
+  }
+  @keyframes popupBounce {
+    0% { transform: scale(0.8); opacity: 0; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+  .badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+    background-color: #ffd54f;
+    border-radius: 999px;
+    padding: 0.4em 1em;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin-bottom: 1em;
+    font-weight: bold;
+    color: #5d4037;
+  }
+
+  .badge.child {
+    background-color: #f48fb1;
+  }
+
+  .station-card {
+    animation: fadeIn 0.4s ease;
+    background-color: #fff3e0;
+    border-left: 6px solid #ffb74d;
+    border-radius: 12px;
+    margin-bottom: 0.5em;
+    padding: 0.5em 1em;
+    font-family: 'Comic Sans MS', cursive;
+  }
+
+  #popup.show {
+    display: block;
+    animation: popupBounce 0.6s ease, slideDown 0.5s ease;
+  }
+
+  @keyframes slideDown {
+    0% { transform: translateY(-20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes sparkle {
+    0% { transform: scale(0.8); opacity: 0; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+
+  .sparkle-card {
+    animation: sparkle 0.4s ease-in-out;
+    transition: transform 0.3s;
+  }
+
+  .station-card:hover {
+    transform: scale(1.02);
+  }
+
+  button {
+    transition: transform 0.2s;
+  }
+
+  button:hover {
+    transform: scale(1.05);
+  }
+  .app-shell {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  header {
+    background-color: #4dd0e1;
+    color: white;
+    padding: 0.8em;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1em;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+
+  footer {
+    background-color: #ffffffdd;
+    text-align: center;
+    font-size: 0.85em;
+    padding: 0.5em;
+    border-top: 1px solid #ccc;
+  }
+
+  main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1em;
+    box-sizing: border-box;
+  }
+
+  </style>
+  <link rel="manifest" href="manifest.json">
 </head>
 <body>
+  <div class="app-shell">
+    <header>🚃 駅名げーむアプリ</header>
   <div id="start-screen" style="position:absolute;top:0;left:0;width:100%;height:100%;background-color:rgba(255,255,255,0.9);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;">
     <img src="images/logo_character.png" alt="ロゴ" style="width:100px;height:100px;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.2);">
-    <h1 style="font-family:'Comic Sans MS', cursive;color:#5d3a00;margin:0.5em 0;">駅名げーむ</h1>
+    <h1 style="font-family:'Comic Sans MS', cursive; font-size: 2em; letter-spacing: 0.05em; color: #3e2723; background-color: #ffe082; padding: 0.3em 1em; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin: 0.5em 0; display: inline-block;">🚃 駅名げーむ 🚉</h1>
     <button onclick="startGame()" style="font-size:1.2em;padding:0.6em 1.2em;border:none;border-radius:12px;background-color:#4dd0e1;color:white;box-shadow:0 2px 6px rgba(0,0,0,0.2);">スタート</button>
   </div>
-  <main style="animation: fadeIn 0.6s ease-in-out;">
+  <main id="main-content" style="animation: fadeIn 0.6s ease-in-out; display: none;">
+  <div class="tab-menu">
+    <button class="tab-button active" onclick="switchTab('game-tab')">ゲーム</button>
+    <button class="tab-button" onclick="switchTab('info-tab')">遊び方</button>
+  </div>
+  <div id="game-tab" class="tab-content active">
   <div style="text-align:center; margin-bottom: 1em;">
   <img src="images/logo_character.png" alt="キャラロゴ" style="width: 80px; height: 80px; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
-  <h1>駅名げーむ</h1>
+  <h1 style="font-family:'Comic Sans MS', cursive; font-size: 2em; letter-spacing: 0.05em; color: #3e2723; background-color: #ffe082; padding: 0.3em 1em; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin: 0.5em 0; display: inline-block;">🚃 駅名げーむ 🚉</h1>
 </div>
-  <select id="line-select" onchange="changeLine()">
-    <option value="tozai">東西線</option>
-    <option value="oedo">大江戸線</option>
-    <option value="all">両方</option>
-  </select>
+  <div class="card">
+    <label for="line-select" class="section-title">▶ 路線をえらんでね</label>
+    <select id="line-select" onchange="changeLine()">
+      <option value="tozai">東西線</option>
+      <option value="oedo">大江戸線</option>
+      <option value="all">両方</option>
+    </select>
+  </div>
   <div id="player-badge" class="badge">
     <img id="player-icon" src="images/parent_icon.png" alt="親アイコン">
     <span id="player-text">親の番</span>
   </div>
-  <input type="text" id="station-input" placeholder="例：高田馬場">
-  <button onclick="submitStation()">送信する</button>
-  <button onclick="resetGame()" style="background-color: #ccc; color: #333;">リセット</button>
+  <div class="card">
+    <label for="station-input" class="section-title">▶ 駅名を入力してね</label>
+    <input type="text" id="station-input" placeholder="例：高田馬場">
+    <button onclick="submitStation()">送信する</button>
+    <button onclick="resetGame()" style="background-color: #ccc; color: #333;">リセット</button>
+  </div>
   <div id="remaining-count"></div>
-  <button onclick="showHint()" style="background-color: #a5d6a7; color: #2e7d32;">ヒントをみる（のこり2回）</button>
-  <div id="hint-message"></div>
-  <button onclick="toggleStationList()" style="background-color: #fff59d; color: #5d4037;">駅名一覧を表示</button>
-  <div id="station-list-toggle" style="display:none;"></div>
+  <div class="card">
+    <label class="section-title">▶ ヒントをつかう</label>
+    <button onclick="showHint()" style="background-color: #a5d6a7; color: #2e7d32;">ヒントをみる（1人3回まで）</button>
+    <div id="hint-message"></div>
+  </div>
+  <div class="card">
+    <label class="section-title">▶ 駅名一覧</label>
+    <button onclick="toggleStationList()" style="background-color: #fff59d; color: #5d4037;">駅名一覧を表示</button>
+    <div id="station-list-toggle" style="display:none;"></div>
+  </div>
   <div id="result-message"></div>
   <div class="log" id="log">
     <p>これまでに言った駅名：</p>
     <div id="station-list"></div>
   </div>
   <div id="popup" class="popup"></div>
+  </div>
+  <div id="info-tab" class="tab-content" style="display:none;">
+    <div class="card">
+      <p>🚋 駅名げーむの遊び方：</p>
+      <ul style="text-align:left; padding-left: 1.2em;">
+        <li>親と子で交互に駅名を言っていくよ！</li>
+        <li>同じ駅を言ったり、路線外の駅を言うと負け！</li>
+        <li>ヒントは1人3回まで使えるよ！</li>
+      </ul>
+    </div>
+  </div>
   <script>
     function startGame() {
-      document.getElementById("start-screen").style.display = "none";
-    }
+  document.getElementById("start-screen").style.display = "none";
+  document.getElementById("main-content").style.display = "block";
+}
     const tozaiLineStations = ["中野", "落合", "高田馬場", "早稲田", "神楽坂", "飯田橋", "九段下", "竹橋", "大手町", "日本橋", "茅場町", "門前仲町", "木場", "東陽町", "南砂町", "西葛西", "葛西", "浦安", "南行徳", "行徳", "妙典", "原木中山", "西船橋"];
     const oedoLineStations = ["都庁前", "新宿西口", "東新宿", "若松河田", "牛込柳町", "牛込神楽坂", "飯田橋", "春日", "本郷三丁目", "上野御徒町", "新御徒町", "蔵前", "両国", "森下", "清澄白河", "門前仲町", "月島", "勝どき", "築地市場", "汐留", "大門", "赤羽橋", "麻布十番", "六本木", "青山一丁目", "国立競技場", "代々木", "新宿", "都庁前"];
 
@@ -201,7 +356,7 @@ let childHintCount = 0;
       document.getElementById("result-message").textContent = "";
       const list = document.getElementById("station-list");
       const card = document.createElement("div");
-      card.className = "station-card";
+      card.className = "station-card sparkle-card";
       const iconPath = isParentTurn ? "images/parent_icon.png" : "images/child_icon.png";
       const altText = isParentTurn ? "親アイコン" : "子アイコン";
       card.innerHTML = `<span>${player}</span>：${station}`;
@@ -209,6 +364,15 @@ let childHintCount = 0;
       isParentTurn = !isParentTurn;
       updateBadge();
       updateRemainingCount();
+    }
+
+    function switchTab(tabId) {
+      const tabs = document.querySelectorAll('.tab-content');
+      const buttons = document.querySelectorAll('.tab-button');
+      tabs.forEach(tab => tab.classList.remove('active'));
+      buttons.forEach(btn => btn.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      event.target.classList.add('active');
     }
 
     function updateRemainingCount() {
@@ -276,6 +440,20 @@ function toggleStationList() {
     updateBadge();
     updateRemainingCount();
   </script>
-  </main>
+  
+  </div>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(function(registration) {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+          }, function(err) {
+            console.log('ServiceWorker registration failed: ', err);
+          });
+      });
+    }
+  </script>
 </body>
 </html>
+
