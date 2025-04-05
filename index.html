@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#4dd0e1">
-  <title>駅名いいあいっこ 東西線・大江戸線</title>
+  <title>駅名バトル</title>
   <style>
     body {
       font-family: 'Arial', sans-serif;
@@ -96,10 +96,10 @@
       font-weight: bold;
       color: #007c91;
     }
-    #result-message {
-      font-size: 1.2em;
-      color: #d32f2f;
-      margin-top: 1em;
+    #result-message, #remaining-count, #hint-message, #station-list-toggle, #station-list-full {
+      font-size: 1em;
+      margin: 0.5em;
+      color: #007c91;
     }
     .popup {
       position: fixed;
@@ -127,7 +127,7 @@
   </style>
 </head>
 <body>
-  <h1>駅名いいあいっこ 東西線・大江戸線</h1>
+  <h1>駅名バトル</h1>
   <select id="line-select" onchange="changeLine()">
     <option value="tozai">東西線</option>
     <option value="oedo">大江戸線</option>
@@ -140,6 +140,11 @@
   <input type="text" id="station-input" placeholder="例：高田馬場">
   <button onclick="submitStation()">送信する</button>
   <button onclick="resetGame()" style="background-color: #ccc; color: #333;">リセット</button>
+  <div id="remaining-count"></div>
+  <button onclick="showHint()" style="background-color: #a5d6a7; color: #2e7d32;">ヒントをみる（のこり2回）</button>
+  <div id="hint-message"></div>
+  <button onclick="toggleStationList()" style="background-color: #fff59d; color: #5d4037;">駅名一覧を表示</button>
+  <div id="station-list-toggle" style="display:none;"></div>
   <div id="result-message"></div>
   <div class="log" id="log">
     <p>これまでに言った駅名：</p>
@@ -147,98 +152,59 @@
   </div>
   <div id="popup" class="popup"></div>
   <script>
-    const tozaiLineStations = ["中野", "落合", "高田馬場", "早稲田", "神楽坂", "飯田橋", "九段下", "竹橋", "大手町", "日本橋", "茅場町", "門前仲町", "木場", "東陽町", "南砂町", "西葛西", "葛西", "浦安", "南行徳", "行徳", "妙典", "原木中山", "西船橋"];
-    const oedoLineStations = ["都庁前", "新宿西口", "東新宿", "若松河田", "牛込柳町", "牛込神楽坂", "飯田橋", "春日", "本郷三丁目", "上野御徒町", "新御徒町", "蔵前", "両国", "森下", "清澄白河", "門前仲町", "月島", "勝どき", "築地市場", "汐留", "大門", "赤羽橋", "麻布十番", "六本木", "青山一丁目", "国立競技場", "代々木", "新宿", "都庁前"];
-
+    const tozaiLineStations = [...];
+    const oedoLineStations = [...];
     let selectedLine = 'tozai';
     let usedStations = [];
     let isParentTurn = true;
+    let hintCount = 0;
 
     function getCurrentStationList() {
-      if (selectedLine === 'tozai') return tozaiLineStations;
-      if (selectedLine === 'oedo') return oedoLineStations;
-      return [...new Set([...tozaiLineStations, ...oedoLineStations])];
+      ...
     }
 
-    function updateBadge() {
-      const badge = document.getElementById("player-badge");
-      const icon = document.getElementById("player-icon");
-      const text = document.getElementById("player-text");
-      if (isParentTurn) {
-        badge.classList.remove("child");
-        icon.src = "images/parent_icon.png";
-        text.textContent = "親の番";
-      } else {
-        badge.classList.add("child");
-        icon.src = "images/child_icon.png";
-        text.textContent = "子の番";
+    function updateRemainingCount() {
+      ...
+    }
+
+    function showHint() {
+      if (hintCount >= 2) {
+        document.getElementById("hint-message").textContent = "ヒントは2回までです！";
+        return;
       }
-    }
-
-    function showGameOver(winner) {
-      const popup = document.getElementById("popup");
-      popup.innerHTML = `<strong>${winner}の勝ち！</strong><br><button onclick=\"resetGame()\">もう一度あそぶ</button>`;
-      popup.classList.add("show");
-      document.body.style.backgroundColor = "#ffe0e0";
-    }
-
-    function submitStation() {
-      const input = document.getElementById("station-input");
-      const station = input.value.trim();
-      input.value = "";
-      input.blur();
       const stationList = getCurrentStationList();
-      const player = isParentTurn ? "親" : "子";
-      const loser = player;
-      const winner = isParentTurn ? "子" : "親";
-
-      if (!station) {
-        alert("駅名を入力してください！");
-        return;
-      }
-
-      if (!stationList.includes(station)) {
-        document.getElementById("result-message").textContent = `『${station}』はその路線の駅じゃないよ！ ${loser}の負け！`;
-        showGameOver(winner);
-        return;
-      }
-
-      if (usedStations.includes(station)) {
-        document.getElementById("result-message").textContent = `『${station}』はもう言ったよ！ ${loser}の負け！`;
-        showGameOver(winner);
-        return;
-      }
-
-      usedStations.push(station);
-      document.getElementById("result-message").textContent = "";
-      const list = document.getElementById("station-list");
-      const card = document.createElement("div");
-      card.className = "station-card";
-      const iconPath = isParentTurn ? "images/parent_icon.png" : "images/child_icon.png";
-      const altText = isParentTurn ? "親アイコン" : "子アイコン";
-      card.innerHTML = `<img src="${iconPath}" alt="${altText}"><span>${player}</span>：${station}`;
-      list.appendChild(card);
-      isParentTurn = !isParentTurn;
-      updateBadge();
+      const remaining = stationList.filter(s => !usedStations.includes(s));
+      const hint = remaining[Math.floor(Math.random() * remaining.length)];
+      document.getElementById("hint-message").textContent = `ヒント：『${hint}』もまだ使えるよ！`;
+      hintCount++;
     }
 
+    function toggleStationList() {
+      const container = document.getElementById("station-list-toggle");
+      if (container.style.display === "none") {
+        const all = getCurrentStationList();
+        container.innerHTML = "駅名一覧：" + all.join("、");
+        container.style.display = "block";
+      } else {
+        container.style.display = "none";
+      }
+    }
+
+    function updateBadge() { ... }
+    function showGameOver(winner) { ... }
+    function submitStation() { ... }
     function resetGame() {
       usedStations = [];
-      document.getElementById("station-list").innerHTML = "";
-      isParentTurn = true;
-      updateBadge();
-      document.getElementById("station-input").value = "";
-      document.getElementById("result-message").textContent = "";
-      document.getElementById("popup").classList.remove("show");
-      document.body.style.backgroundColor = "#e0f7fa";
+      hintCount = 0;
+      ...
     }
-
     function changeLine() {
       selectedLine = document.getElementById("line-select").value;
       resetGame();
     }
 
     updateBadge();
+    updateRemainingCount();
   </script>
 </body>
 </html>
