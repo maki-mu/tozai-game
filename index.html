@@ -4,9 +4,65 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#4dd0e1">
-  <title>駅名バトル</title>
+  <title>駅名げーむ</title>
   <!-- （CSS部分は省略） -->
   <style>
+    /* スマホアプリ風リファイン */
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1em;
+      box-sizing: border-box;
+    }
+
+    main {
+      width: 100%;
+      max-width: 480px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      padding: 1.5em;
+    }
+    body {
+      background-image: url('images/forest_bg.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    h1 {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      color: #5d3a00;
+      background-color: rgba(255, 255, 255, 0.7);
+      display: inline-block;
+      padding: 0.3em 0.8em;
+      border-radius: 12px;
+      margin-top: 0.5em;
+    }
+
+    input, button {
+      border-radius: 20px;
+      font-family: 'Comic Sans MS', cursive;
+    }
+
+    .station-card {
+      background-color: rgba(255, 255, 255, 0.85);
+      border-left: 6px solid #8bc34a;
+    }
+
+    #popup {
+      font-family: 'Comic Sans MS', cursive;
+      background-color: #fff8e1;
+      border: 2px dashed #a1887f;
+    }
     @media (max-width: 480px) {
       h1 {
         font-size: 1.4em;
@@ -27,10 +83,29 @@
         padding: 0.5em;
       }
     }
-  </style>
+    #player-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
 </head>
 <body>
-  <h1>駅名バトル</h1>
+  <div id="start-screen" style="position:absolute;top:0;left:0;width:100%;height:100%;background-color:rgba(255,255,255,0.9);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;">
+    <img src="images/logo_character.png" alt="ロゴ" style="width:100px;height:100px;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.2);">
+    <h1 style="font-family:'Comic Sans MS', cursive;color:#5d3a00;margin:0.5em 0;">駅名げーむ</h1>
+    <button onclick="startGame()" style="font-size:1.2em;padding:0.6em 1.2em;border:none;border-radius:12px;background-color:#4dd0e1;color:white;box-shadow:0 2px 6px rgba(0,0,0,0.2);">スタート</button>
+  </div>
+  <main style="animation: fadeIn 0.6s ease-in-out;">
+  <div style="text-align:center; margin-bottom: 1em;">
+  <img src="images/logo_character.png" alt="キャラロゴ" style="width: 80px; height: 80px; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
+  <h1>駅名げーむ</h1>
+</div>
   <select id="line-select" onchange="changeLine()">
     <option value="tozai">東西線</option>
     <option value="oedo">大江戸線</option>
@@ -55,13 +130,17 @@
   </div>
   <div id="popup" class="popup"></div>
   <script>
+    function startGame() {
+      document.getElementById("start-screen").style.display = "none";
+    }
     const tozaiLineStations = ["中野", "落合", "高田馬場", "早稲田", "神楽坂", "飯田橋", "九段下", "竹橋", "大手町", "日本橋", "茅場町", "門前仲町", "木場", "東陽町", "南砂町", "西葛西", "葛西", "浦安", "南行徳", "行徳", "妙典", "原木中山", "西船橋"];
     const oedoLineStations = ["都庁前", "新宿西口", "東新宿", "若松河田", "牛込柳町", "牛込神楽坂", "飯田橋", "春日", "本郷三丁目", "上野御徒町", "新御徒町", "蔵前", "両国", "森下", "清澄白河", "門前仲町", "月島", "勝どき", "築地市場", "汐留", "大門", "赤羽橋", "麻布十番", "六本木", "青山一丁目", "国立競技場", "代々木", "新宿", "都庁前"];
 
     let selectedLine = 'tozai';
     let usedStations = [];
     let isParentTurn = true;
-    let hintCount = 0;
+    let parentHintCount = 0;
+let childHintCount = 0;
 
     function getCurrentStationList() {
       if (selectedLine === 'tozai') return tozaiLineStations;
@@ -139,15 +218,16 @@
     }
 
     function resetGame() {
-      usedStations = [];
-      hintCount = 0;
-      document.getElementById("station-list").innerHTML = "";
-      document.getElementById("station-input").value = "";
-      document.getElementById("hint-message").textContent = "";
-      document.getElementById("result-message").textContent = "";
-      document.getElementById("popup").classList.remove("show");
-      document.body.style.backgroundColor = "#e0f7fa";
-      isParentTurn = true;
+  usedStations = [];
+  parentHintCount = 0;
+  childHintCount = 0;
+  document.getElementById("station-list").innerHTML = "";
+  document.getElementById("station-input").value = "";
+  document.getElementById("hint-message").textContent = "";
+  document.getElementById("result-message").textContent = "";
+  document.getElementById("popup").classList.remove("show");
+  document.body.style.backgroundColor = "#e0f7fa";
+  isParentTurn = true;
       updateBadge();
       updateRemainingCount();
     }
@@ -158,18 +238,31 @@
     }
 
     function showHint() {
-      if (hintCount >= 2) {
-        document.getElementById("hint-message").textContent = "ヒントは2回までです！";
-        return;
-      }
-      const stationList = getCurrentStationList();
-      const remaining = stationList.filter(s => !usedStations.includes(s));
-      const hint = remaining[Math.floor(Math.random() * remaining.length)];
-      document.getElementById("hint-message").textContent = `ヒント：『${hint}』もまだ使えるよ！`;
-      hintCount++;
-    }
+  const currentPlayer = isParentTurn ? "親" : "子";
+  let hintCount = isParentTurn ? parentHintCount : childHintCount;
 
-    function toggleStationList() {
+  if (hintCount >= 3) {
+    document.getElementById("hint-message").textContent = `${currentPlayer}のヒントは3回までです！`;
+    return;
+  }
+
+  const stationList = getCurrentStationList();
+  const remaining = stationList.filter(s => !usedStations.includes(s));
+  if (remaining.length === 0) {
+    document.getElementById("hint-message").textContent = "もうヒントに出せる駅がありません！";
+    return;
+  }
+  const hint = remaining[Math.floor(Math.random() * remaining.length)];
+  document.getElementById("hint-message").textContent = `ヒント（${currentPlayer}）：『${hint}』もまだ使えるよ！`;
+
+  if (isParentTurn) {
+    parentHintCount++;
+  } else {
+    childHintCount++;
+  }
+}
+
+function toggleStationList() {
       const container = document.getElementById("station-list-toggle");
       if (container.style.display === "none") {
         const all = getCurrentStationList();
@@ -183,5 +276,6 @@
     updateBadge();
     updateRemainingCount();
   </script>
+  </main>
 </body>
 </html>
