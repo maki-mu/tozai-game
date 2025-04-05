@@ -249,7 +249,13 @@
 <div id="loser-animation" style="text-align:center; display:none; margin-bottom: 1em;">
   <img src="images/loser_icon.png" alt="くやしがるキャラ" style="width: 100px; height: auto;">
 </div>
-  <div id="player-badge" class="badge">
+  <div id="owl-chat" style="display: flex; align-items: flex-start; margin-bottom: 1em;">
+  <img src="images/kotaro_icon.png" alt="ふくろうじい" style="width: 60px; height: 60px; border-radius: 50%; margin-right: 0.6em; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
+  <div id="owl-message" style="background-color: #fff9c4; padding: 0.8em 1em; border-radius: 12px; font-family: 'Comic Sans MS', cursive; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 300px;">
+    ようこそじゃ、駅名げーむへ。わしはコタロウじい。わからぬことがあれば、何でも聞くのじゃよ。
+  </div>
+</div>
+<div id="player-badge" class="badge">
     <img id="player-icon" src="images/parent_icon.png" alt="親アイコン">
     <span id="player-text">親の番</span>
   </div>
@@ -287,11 +293,13 @@
       </ul>
     </div>
   </div>
-  <script>
+</main>
+<script>
     function startGame() {
   document.getElementById("start-screen").style.display = "none";
   document.getElementById("main-content").style.display = "block";
 }
+window.startGame = startGame;
     const tozaiLineStations = ["中野", "落合", "高田馬場", "早稲田", "神楽坂", "飯田橋", "九段下", "竹橋", "大手町", "日本橋", "茅場町", "門前仲町", "木場", "東陽町", "南砂町", "西葛西", "葛西", "浦安", "南行徳", "行徳", "妙典", "原木中山", "西船橋"];
     const oedoLineStations = ["都庁前", "新宿西口", "東新宿", "若松河田", "牛込柳町", "牛込神楽坂", "飯田橋", "春日", "本郷三丁目", "上野御徒町", "新御徒町", "蔵前", "両国", "森下", "清澄白河", "門前仲町", "月島", "勝どき", "築地市場", "汐留", "大門", "赤羽橋", "麻布十番", "六本木", "青山一丁目", "国立競技場", "代々木", "新宿", "都庁前"];
 
@@ -340,17 +348,20 @@ let childHintCount = 0;
       const winner = isParentTurn ? "子" : "親";
 
       if (!station) {
+        owlSpeak("駅名を入力せんことには、始まらんのう。思い出してみるのじゃ。");
         alert("駅名を入力してください！");
         return;
       }
 
       if (!stationList.includes(station)) {
+        owlSpeak(`『${station}』はその路線の駅ではないようじゃのう…。残念じゃが ${loser} の負けじゃ。`);
         document.getElementById("result-message").textContent = `『${station}』はその路線の駅じゃないよ！ ${loser}の負け！`;
         showGameOver(winner);
         return;
       }
 
       if (usedStations.includes(station)) {
+        owlSpeak(`おやおや、『${station}』はすでに出た駅名じゃぞ。 ${loser} の負けじゃ。`);
         document.getElementById("result-message").textContent = `『${station}』はもう言ったよ！ ${loser}の負け！`;
         showGameOver(winner);
         return;
@@ -368,6 +379,7 @@ let childHintCount = 0;
       isParentTurn = !isParentTurn;
       updateBadge();
       updateRemainingCount();
+  owlSpeak("さて、駅名は決まったかの？ 思い出してみるのじゃ。ふぉっふぉっふぉ…");
     }
 
     function switchTab(tabId) {
@@ -379,7 +391,11 @@ let childHintCount = 0;
       event.target.classList.add('active');
     }
 
-    function updateRemainingCount() {
+    function owlSpeak(message) {
+  document.getElementById("owl-message").textContent = message;
+}
+
+function updateRemainingCount() {
       const total = getCurrentStationList().length;
       const remaining = total - usedStations.length;
       document.getElementById("remaining-count").textContent = `残りの駅数：${remaining}駅`;
@@ -428,6 +444,7 @@ function changeLine() {
   }
   const hint = remaining[Math.floor(Math.random() * remaining.length)];
   document.getElementById("hint-message").textContent = `ヒント（${currentPlayer}）：『${hint}』もまだ使えるよ！`;
+  owlSpeak(`ふぉっふぉっふぉ… ではヒントを出そう。『${hint}』などいかがかのう？`);
 
   if (isParentTurn) {
     parentHintCount++;
@@ -450,8 +467,6 @@ function toggleStationList() {
     updateBadge();
     updateRemainingCount();
   </script>
-  
-  </div>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
@@ -466,4 +481,5 @@ function toggleStationList() {
   </script>
 </body>
 </html>
+
 
