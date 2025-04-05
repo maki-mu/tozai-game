@@ -2,25 +2,30 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>東西線 駅名いいあいっこゲーム</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#4dd0e1">
+  <title>駅名いいあいっこ 東西線・大江戸線</title>
   <style>
     body {
       font-family: 'Arial', sans-serif;
-      background: #e0f7fa;
+      background: linear-gradient(to bottom, #e0f7fa, #ffffff);
       margin: 0;
       padding: 1em;
       text-align: center;
       transition: background-color 0.5s ease;
     }
-
     h1 {
-      color: #00acc1;
-      font-size: 2em;
+      color: #007c91;
+      font-size: 1.8em;
       margin-bottom: 0.5em;
-      animation: fadeIn 1s ease-in-out;
     }
-
+    select {
+      font-size: 1em;
+      margin-bottom: 1em;
+      padding: 0.5em;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
     .badge {
       display: inline-flex;
       align-items: center;
@@ -30,48 +35,40 @@
       color: #fff;
       background-color: #4dd0e1;
       margin-bottom: 1em;
-      animation: popIn 0.4s ease;
     }
-
     .badge img {
       width: 24px;
       height: 24px;
       margin-right: 0.5em;
     }
-
     .badge.child {
       background-color: #80deea;
     }
-
     input, button {
       font-size: 1.1em;
-      padding: 0.6em;
-      margin: 0.4em;
+      padding: 0.8em;
+      margin: 0.6em 0;
       width: 90%;
       max-width: 400px;
-      box-sizing: border-box;
+      border-radius: 16px;
       border: none;
-      border-radius: 12px;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
-
     input {
-      background: #ffffff;
+      background: #fff;
       border: 1px solid #b2ebf2;
     }
-
     button {
       background-color: #4dd0e1;
       color: white;
+      font-weight: bold;
       cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.1s ease;
+      transition: all 0.2s ease;
     }
-
     button:hover {
       background-color: #26c6da;
       transform: scale(1.02);
     }
-
     .log {
       margin-top: 1.5em;
       text-align: center;
@@ -79,38 +76,31 @@
       margin-left: auto;
       margin-right: auto;
     }
-
     .station-card {
       background: #ffffff;
-      border-radius: 12px;
-      padding: 0.8em 1em;
-      margin: 0.5em auto;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-radius: 16px;
+      padding: 1em;
+      margin: 0.6em auto;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       width: 90%;
-      max-width: 300px;
-      text-align: left;
+      max-width: 320px;
       display: flex;
       align-items: center;
-      animation: fadeInUp 0.4s ease;
     }
-
     .station-card img {
-      width: 32px;
-      height: 32px;
-      margin-right: 0.5em;
+      width: 36px;
+      height: 36px;
+      margin-right: 0.8em;
     }
-
     .station-card span {
       font-weight: bold;
-      color: #00acc1;
+      color: #007c91;
     }
-
     #result-message {
       font-size: 1.2em;
       color: #d32f2f;
       margin-top: 1em;
     }
-
     .popup {
       position: fixed;
       top: 50%;
@@ -118,37 +108,18 @@
       transform: translate(-50%, -50%);
       background: white;
       padding: 2em;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      border-radius: 16px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.2);
       z-index: 999;
       display: none;
-      animation: fadeIn 0.5s ease;
     }
-
     .popup.show {
       display: block;
     }
-
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes popIn {
-      0% { transform: scale(0.9); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
     @media (max-width: 480px) {
       h1 {
-        font-size: 1.6em;
+        font-size: 1.5em;
       }
-
       input, button {
         font-size: 1em;
       }
@@ -156,52 +127,50 @@
   </style>
 </head>
 <body>
-  <h1>
-    <img src="images/train_icon.png" alt="電車アイコン" style="height: 1.5em; vertical-align: middle; margin-right: 0.4em;">
-    駅名いいあいっこ 東西線
-  </h1>
+  <h1>駅名いいあいっこ 東西線・大江戸線</h1>
+  <select id="line-select" onchange="changeLine()">
+    <option value="tozai">東西線</option>
+    <option value="oedo">大江戸線</option>
+    <option value="all">両方</option>
+  </select>
   <div id="player-badge" class="badge">
     <img id="player-icon" src="images/parent_icon.png" alt="親アイコン">
     <span id="player-text">親の番</span>
   </div>
-
-  <input type="text" id="station-input" placeholder="駅名を入力してください">
-  <button onclick="submitStation()">送信</button>
-  <button onclick="resetGame()" style="background-color: #ccc; color: #333; margin-top: 1em;">リセットする</button>
-
+  <input type="text" id="station-input" placeholder="例：高田馬場">
+  <button onclick="submitStation()">送信する</button>
+  <button onclick="resetGame()" style="background-color: #ccc; color: #333;">リセット</button>
   <div id="result-message"></div>
-
   <div class="log" id="log">
     <p>これまでに言った駅名：</p>
     <div id="station-list"></div>
   </div>
-
   <div id="popup" class="popup"></div>
-
   <script>
-    const tozaiLineStations = [
-      "中野", "落合", "高田馬場", "早稲田", "神楽坂", "飯田橋", "九段下", "竹橋", "大手町",
-      "日本橋", "茅場町", "門前仲町", "木場", "東陽町", "南砂町", "西葛西", "葛西", "浦安",
-      "南行徳", "行徳", "妙典", "原木中山", "西船橋"
-    ];
+    const tozaiLineStations = ["中野", "落合", "高田馬場", "早稲田", "神楽坂", "飯田橋", "九段下", "竹橋", "大手町", "日本橋", "茅場町", "門前仲町", "木場", "東陽町", "南砂町", "西葛西", "葛西", "浦安", "南行徳", "行徳", "妙典", "原木中山", "西船橋"];
+    const oedoLineStations = ["都庁前", "新宿西口", "東新宿", "若松河田", "牛込柳町", "牛込神楽坂", "飯田橋", "春日", "本郷三丁目", "上野御徒町", "新御徒町", "蔵前", "両国", "森下", "清澄白河", "門前仲町", "月島", "勝どき", "築地市場", "汐留", "大門", "赤羽橋", "麻布十番", "六本木", "青山一丁目", "国立競技場", "代々木", "新宿", "都庁前"];
 
-    const usedStations = [];
+    let selectedLine = 'tozai';
+    let usedStations = [];
     let isParentTurn = true;
+
+    function getCurrentStationList() {
+      if (selectedLine === 'tozai') return tozaiLineStations;
+      if (selectedLine === 'oedo') return oedoLineStations;
+      return [...new Set([...tozaiLineStations, ...oedoLineStations])];
+    }
 
     function updateBadge() {
       const badge = document.getElementById("player-badge");
       const icon = document.getElementById("player-icon");
       const text = document.getElementById("player-text");
-
       if (isParentTurn) {
         badge.classList.remove("child");
         icon.src = "images/parent_icon.png";
-        icon.alt = "親アイコン";
         text.textContent = "親の番";
       } else {
         badge.classList.add("child");
         icon.src = "images/child_icon.png";
-        icon.alt = "子アイコン";
         text.textContent = "子の番";
       }
     }
@@ -217,7 +186,8 @@
       const input = document.getElementById("station-input");
       const station = input.value.trim();
       input.value = "";
-
+      input.blur();
+      const stationList = getCurrentStationList();
       const player = isParentTurn ? "親" : "子";
       const loser = player;
       const winner = isParentTurn ? "子" : "親";
@@ -227,8 +197,8 @@
         return;
       }
 
-      if (!tozaiLineStations.includes(station)) {
-        document.getElementById("result-message").textContent = `『${station}』は東西線の駅じゃないよ！ ${loser}の負け！`;
+      if (!stationList.includes(station)) {
+        document.getElementById("result-message").textContent = `『${station}』はその路線の駅じゃないよ！ ${loser}の負け！`;
         showGameOver(winner);
         return;
       }
@@ -241,7 +211,6 @@
 
       usedStations.push(station);
       document.getElementById("result-message").textContent = "";
-
       const list = document.getElementById("station-list");
       const card = document.createElement("div");
       card.className = "station-card";
@@ -249,13 +218,12 @@
       const altText = isParentTurn ? "親アイコン" : "子アイコン";
       card.innerHTML = `<img src="${iconPath}" alt="${altText}"><span>${player}</span>：${station}`;
       list.appendChild(card);
-
       isParentTurn = !isParentTurn;
       updateBadge();
     }
 
     function resetGame() {
-      usedStations.length = 0;
+      usedStations = [];
       document.getElementById("station-list").innerHTML = "";
       isParentTurn = true;
       updateBadge();
@@ -263,7 +231,11 @@
       document.getElementById("result-message").textContent = "";
       document.getElementById("popup").classList.remove("show");
       document.body.style.backgroundColor = "#e0f7fa";
-      alert("ゲームをリセットしました！");
+    }
+
+    function changeLine() {
+      selectedLine = document.getElementById("line-select").value;
+      resetGame();
     }
 
     updateBadge();
