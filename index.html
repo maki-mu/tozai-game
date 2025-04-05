@@ -6,6 +6,28 @@
   <meta name="theme-color" content="#4dd0e1">
   <title>駅名バトル</title>
   <!-- （CSS部分は省略） -->
+  <style>
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.4em;
+      }
+      input, button {
+        font-size: 1em;
+        padding: 0.6em;
+      }
+      .station-card {
+        font-size: 0.95em;
+        padding: 0.8em;
+      }
+      #station-input {
+        font-size: 1em;
+      }
+      .badge {
+        flex-direction: column;
+        padding: 0.5em;
+      }
+    }
+  </style>
 </head>
 <body>
   <h1>駅名バトル</h1>
@@ -103,7 +125,7 @@
       card.className = "station-card";
       const iconPath = isParentTurn ? "images/parent_icon.png" : "images/child_icon.png";
       const altText = isParentTurn ? "親アイコン" : "子アイコン";
-      card.innerHTML = `<img src="${iconPath}" alt="${altText}"><span>${player}</span>：${station}`;
+      card.innerHTML = `<span>${player}</span>：${station}`;
       list.appendChild(card);
       isParentTurn = !isParentTurn;
       updateBadge();
